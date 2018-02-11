@@ -4,39 +4,37 @@
 
 #include "SimpleGraph.h"
 
-SimpleGraph::SimpleGraph(int n)   {
+SimpleGraph::SimpleGraph(uint32_t n)   {
     setNoVertices(n);
 }
 
-int SimpleGraph::getNoVertices() const {
+uint32_t SimpleGraph::getNoVertices() const {
     return V;
 }
 
-void SimpleGraph::setNoVertices(int n) {
-    if(n < 0) throw "Negative number of vertices!";
+void SimpleGraph::setNoVertices(uint32_t n) {
     V = n;
     adj.resize(V);
     reverse_adj.resize(V);
 }
 
-int SimpleGraph::getNoEdges() const {
-    int sum = 0;
+uint32_t SimpleGraph::getNoEdges() const {
+    uint32_t sum = 0;
     for (const auto & l : adj)
         sum += l.size();
     return sum;
 };
 
-int SimpleGraph::getNoLabels() const {
+uint32_t SimpleGraph::getNoLabels() const {
     return L;
 }
 
-void SimpleGraph::setNoLabels(int noLabels) {
-    if(noLabels < 0) throw "Negative number of labels!";
+void SimpleGraph::setNoLabels(uint32_t noLabels) {
     L = noLabels;
 }
 
-void SimpleGraph::addEdge(int from, int to, int edgeLabel) {
-    if(from < 0 || from >= V ||  to < 0 || to >= V || edgeLabel < 0 || edgeLabel >= L)
+void SimpleGraph::addEdge(uint32_t from, uint32_t to, uint32_t edgeLabel) {
+    if(from >= V || to >= V || edgeLabel >= L)
         throw std::runtime_error(std::string("Edge data out of bounds: ") +
                                          "(" + std::to_string(from) + "," + std::to_string(to) + "," +
                                          std::to_string(edgeLabel) + ")");
@@ -56,8 +54,8 @@ void SimpleGraph::readFromContiguousFile(const std::string &fileName) {
     std::getline(graphFile, line);
     std::smatch matches;
     if(std::regex_search(line, matches, headerPat)) {
-        int noNodes = std::stoi(matches[1]);
-        int noLabels = std::stoi(matches[3]);
+        uint32_t noNodes = (uint32_t) std::stoul(matches[1]);
+        uint32_t noLabels = (uint32_t) std::stoul(matches[3]);
 
         setNoVertices(noNodes);
         setNoLabels(noLabels);
@@ -69,9 +67,9 @@ void SimpleGraph::readFromContiguousFile(const std::string &fileName) {
     while(std::getline(graphFile, line)) {
 
         if(std::regex_search(line, matches, edgePat)) {
-            int subject = std::stoi(matches[1]);
-            int predicate = std::stoi(matches[2]);
-            int object = std::stoi(matches[3]);
+            uint32_t subject = (uint32_t) std::stoul(matches[1]);
+            uint32_t predicate = (uint32_t) std::stoul(matches[2]);
+            uint32_t object = (uint32_t) std::stoul(matches[3]);
 
             addEdge(subject, object, predicate);
         }

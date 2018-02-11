@@ -23,28 +23,28 @@ cardStat SimpleEvaluator::computeStats(std::shared_ptr<SimpleGraph> &g) {
 
     for(int source = 0; source < g->getNoVertices(); source++) {
         stats.noPaths += g->adj[source].size();
-        if(g->adj[source].size() > 0) stats.noOut++;
+        if(!g->adj[source].empty()) stats.noOut++;
     }
 
     for(int target = 0; target < g->getNoVertices(); target++) {
-        if(g->reverse_adj[target].size() > 0) stats.noIn++;
+        if(!g->reverse_adj[target].empty()) stats.noIn++;
     }
 
     return stats;
 }
 
-std::shared_ptr<SimpleGraph> SimpleEvaluator::project(int projectLabel, bool inverse, std::shared_ptr<SimpleGraph> &in) {
+std::shared_ptr<SimpleGraph> SimpleEvaluator::project(uint32_t projectLabel, bool inverse, std::shared_ptr<SimpleGraph> &in) {
 
     auto out = std::make_shared<SimpleGraph>(in->getNoVertices());
     out->setNoLabels(in->getNoLabels());
 
     if(!inverse) {
         // going forward
-        for(int source = 0; source < in->getNoVertices(); source++) {
+        for(uint32_t source = 0; source < in->getNoVertices(); source++) {
             for (auto labelTarget : in->adj[source]) {
 
-                int label = labelTarget.first;
-                int target = labelTarget.second;
+                auto label = labelTarget.first;
+                auto target = labelTarget.second;
 
                 if (label == projectLabel)
                     out->addEdge(source, target, label);
@@ -52,11 +52,11 @@ std::shared_ptr<SimpleGraph> SimpleEvaluator::project(int projectLabel, bool inv
         }
     } else {
         // going backward
-        for(int source = 0; source < in->getNoVertices(); source++) {
+        for(uint32_t source = 0; source < in->getNoVertices(); source++) {
             for (auto labelTarget : in->reverse_adj[source]) {
 
-                int label = labelTarget.first;
-                int target = labelTarget.second;
+                auto label = labelTarget.first;
+                auto target = labelTarget.second;
 
                 if (label == projectLabel)
                     out->addEdge(source, target, label);
@@ -72,14 +72,14 @@ std::shared_ptr<SimpleGraph> SimpleEvaluator::join(std::shared_ptr<SimpleGraph> 
     auto out = std::make_shared<SimpleGraph>(left->getNoVertices());
     out->setNoLabels(1);
 
-    for(int leftSource = 0; leftSource < left->getNoVertices(); leftSource++) {
+    for(uint32_t leftSource = 0; leftSource < left->getNoVertices(); leftSource++) {
         for (auto labelTarget : left->adj[leftSource]) {
 
             int leftTarget = labelTarget.second;
             // try to join the left target with right source
             for (auto rightLabelTarget : right->adj[leftTarget]) {
 
-                int rightTarget = rightLabelTarget.second;
+                auto rightTarget = rightLabelTarget.second;
                 out->addEdge(leftSource, rightTarget, 0);
 
             }
@@ -100,14 +100,14 @@ std::shared_ptr<SimpleGraph> SimpleEvaluator::evaluate_aux(RPQTree *q) {
 
         std::smatch matches;
 
-        int label;
+        uint32_t label;
         bool inverse;
 
         if(std::regex_search(q->data, matches, directLabel)) {
-            label = std::stoi(matches[1]);
+            label = (uint32_t) std::stoul(matches[1]);
             inverse = false;
         } else if(std::regex_search(q->data, matches, inverseLabel)) {
-            label = std::stoi(matches[1]);
+            label = (uint32_t) std::stoul(matches[1]);
             inverse = true;
         } else {
             std::cerr << "Label parsing failed!" << std::endl;

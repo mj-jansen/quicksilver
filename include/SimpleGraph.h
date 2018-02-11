@@ -15,27 +15,27 @@
 
 class SimpleGraph : public Graph {
 public:
-    std::vector<std::vector<std::pair<int,int>>> adj;
-    std::vector<std::vector<std::pair<int,int>>> reverse_adj; // vertex adjacency list
+    std::vector<std::vector<std::pair<uint32_t,uint32_t>>> adj;
+    std::vector<std::vector<std::pair<uint32_t,uint32_t>>> reverse_adj; // vertex adjacency list
 protected:
-    int V;
-    int L;
+    uint32_t V;
+    uint32_t L;
 
 public:
 
     SimpleGraph() : V(0), L(0) {};
     ~SimpleGraph() = default;
-    explicit SimpleGraph(int n);
+    explicit SimpleGraph(uint32_t n);
 
-    int getNoVertices() const override ;
-    int getNoEdges() const override ;
-    int getNoLabels() const override ;
+    uint32_t getNoVertices() const override ;
+    uint32_t getNoEdges() const override ;
+    uint32_t getNoLabels() const override ;
 
-    void addEdge(int from, int to, int edgeLabel) override ;
+    void addEdge(uint32_t from, uint32_t to, uint32_t edgeLabel) override ;
     void readFromContiguousFile(const std::string &fileName) override ;
 
-    void setNoVertices(int n);
-    void setNoLabels(int noLabels);
+    void setNoVertices(uint32_t n);
+    void setNoLabels(uint32_t noLabels);
 
 };
 
