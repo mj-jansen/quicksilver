@@ -9,9 +9,9 @@
 #include <iostream>
 
 struct cardStat {
-    int noOut;
-    int noPaths;
-    int noIn;
+    uint32_t noOut;
+    uint32_t noPaths;
+    uint32_t noIn;
 
     void print() {
         std::cout << "(" << noOut << ", " << noPaths << ", " << noIn << ")" << std::endl;
