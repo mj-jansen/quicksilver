@@ -49,7 +49,7 @@ std::vector<query> parseQueries(std::string &fileName) {
 int main(int argc, char *argv[]) {
 
     if(argc < 3) {
-        std::cout << "Usage: quicksilver <graphFile> <queriesFile>";
+        std::cout << "Usage: quicksilver <graphFile> <queriesFile>" << std::endl;
         return 0;
     }
 
