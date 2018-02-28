@@ -18,8 +18,23 @@ void SimpleEstimator::prepare() {
 }
 
 cardStat SimpleEstimator::estimate(RPQTree *q) {
-
-    // perform your estimation here
-
-    return cardStat {0, 0, 0};
+    uint32_t s = 0;
+    uint32_t t = 0;
+    //ending
+    uint32_t end = 3;
+    for(auto edges: graph->reverse_adj){
+        auto it = std::find_if(edges.begin(), edges.end(), [end](const std::pair<uint32_t,uint32_t> & element){return element.first == end;});
+        if(it != edges.end()){
+            t++;
+        }
+    }
+    //begin
+    uint32_t start = 0;
+    for(auto edges: graph->adj){
+        auto it = std::find_if(edges.begin(), edges.end(), [start](const std::pair<uint32_t,uint32_t> & element){return element.first == start;});
+        if(it != edges.end()){
+            s++;
+        }
+    }
+    return cardStat {s, 0, t};
 }
