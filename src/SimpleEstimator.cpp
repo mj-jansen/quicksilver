@@ -16,6 +16,9 @@ SimpleEstimator::SimpleEstimator(std::shared_ptr<SimpleGraph> &g){
 
     num_of_edges2 = new int[graph->getNoLabels()] {};
     missing_in_vertices = new int[graph->getNoLabels()] {};
+
+    edges_previous = new int[graph->getNoLabels()] {};
+    edges_previous2 = new int[graph->getNoLabels()] {};
 }
 
 void SimpleEstimator::prepare() {
@@ -23,9 +26,6 @@ void SimpleEstimator::prepare() {
     // do your prep here
     int noLabels = graph->getNoLabels();
     int noVertices = graph->getNoVertices();
-
-    int edges_previous [noLabels] = {};
-    int edges_previous2 [noLabels] = {};
 
     int sum = 0;
     for(int i = 0; i < noVertices; i++) {
@@ -83,11 +83,11 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
         if(std::regex_search(q->data, matches, directLabel)) {
             label = (uint32_t) std::stoul(matches[1]);
             inverse = false;
-            return cardStat{graph->getNoVertices() - missing_out_vertices[label], num_of_edges[label], graph->getNoVertices() - missing_in_vertices[label]};
+            return cardStat{(uint32_t)(graph->getNoVertices() - missing_out_vertices[label]), (uint32_t)num_of_edges[label], (uint32_t)(graph->getNoVertices() - missing_in_vertices[label])};
         } else if(std::regex_search(q->data, matches, inverseLabel)) {
             label = (uint32_t) std::stoul(matches[1]);
             inverse = true;
-            return cardStat{graph -> getNoVertices() - missing_in_vertices[label], num_of_edges[label], graph->getNoVertices() - missing_out_vertices[label]};
+            return cardStat{(uint32_t)(graph -> getNoVertices() - missing_in_vertices[label]), (uint32_t)num_of_edges[label], (uint32_t)(graph->getNoVertices() - missing_out_vertices[label])};
         } else {
             std::cerr << "Label parsing failed!" << std::endl;
             return cardStat{0, 0, 0};
@@ -106,9 +106,9 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
         double ratio_left_right = (double)rightGraph.noOut/graph->getNoVertices();
         double paths_per = (double)rightGraph.noPaths/rightGraph.noOut;
 
-        int noOut =  (int)(ratio_left_right * leftGraph.noOut);
-        int noIn = (int)(ratio_left_right * rightGraph.noIn);
-        int noPaths = leftGraph.noPaths * ratio_left_right * paths_per;
+        uint32_t noOut =  (int)(ratio_left_right * leftGraph.noOut);
+        uint32_t noIn = (int)(ratio_left_right * rightGraph.noIn);
+        uint32_t noPaths = leftGraph.noPaths * ratio_left_right * paths_per;
 
         return cardStat{noOut, noPaths, noIn};
     }
@@ -121,4 +121,6 @@ SimpleEstimator::~SimpleEstimator() {
     delete[] num_of_edges2;
     delete[] missing_in_vertices;
     delete[] missing_out_vertices;
+    delete[] edges_previous;
+    delete[] edges_previous2;
 }
