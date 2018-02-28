@@ -25,44 +25,42 @@ void SimpleEstimator::prepare() {
     int noVertices = graph->getNoVertices();
 
     int edges_previous [noLabels] = {};
+    int edges_previous2 [noLabels] = {};
 
     int sum = 0;
     for(int i = 0; i < noVertices; i++) {
-        if(graph->reverse_adj[i].empty())
+        if (graph->reverse_adj[i].empty() && graph->adj[i].empty())
           sum++;
-        for(auto labelTarget : graph->adj[i]) {
+
+        for (auto labelTarget : graph->adj[i]) {
             num_of_edges[labelTarget.first]++;
         }
-        for(int j = 0; j < noLabels; j++) {
-            if(num_of_edges[j] == edges_previous[j])
+
+        for (auto labelTarget : graph->reverse_adj[i]) {
+            num_of_edges2[labelTarget.first]++;
+        }
+
+        for (int j = 0; j < noLabels; j++) {
+            if (num_of_edges[j] == edges_previous[j])
                 missing_out_vertices[j]++;
             else
                 edges_previous[j] = num_of_edges[j];
-        }
-    }
 
-    int edges_previous2 [noLabels] = {};
-
-    int sum2 = 0;
-    for(int i = 0; i < noVertices; i++) {
-        if(graph->adj[i].empty())
-            sum2++;
-        for(auto labelTarget : graph->reverse_adj[i]) {
-            num_of_edges2[labelTarget.first]++;
-        }
-        for(int j = 0; j < noLabels; j++) {
-            if(num_of_edges2[j] == edges_previous2[j])
+            if (num_of_edges2[j] == edges_previous2[j])
                 missing_in_vertices[j]++;
             else
                 edges_previous2[j] = num_of_edges2[j];
         }
     }
 
+
+
+
     std::cout << "Sum: " << sum << '\n' << std::endl;
     for(int j = 0; j < noLabels; j++) {
+        cout << j << "th noOut: " << noVertices - missing_out_vertices[j] << '\n';
         cout << j << "th label: " << num_of_edges[j] << '\n';
-        cout << j << "th vertices: " << noVertices - missing_out_vertices[j] << '\n';
-        cout << j << "th average per vertice: " << (double)num_of_edges[j]/(noVertices - missing_out_vertices[j]) << '\n';
+        cout << j << "th noIn: " << noVertices - missing_in_vertices[j] << '\n';
     }
 }
 
@@ -103,10 +101,16 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
         auto rightGraph = SimpleEstimator::estimate(q->right);
 
         // join left with right
-        cout << "ratio: " << (double)rightGraph.noOut/graph->getNoVertices() << "\n";
-        //cout << "noOut: " << leftGraph
+        //double ratio_out_left = (double)leftGraph.noPaths/leftGraph.noOut;
+        //double ratio_in_left = (double)leftGraph.noPaths/leftGraph.noIn;
+        double ratio_left_right = (double)rightGraph.noOut/graph->getNoVertices();
+        double paths_per = (double)rightGraph.noPaths/rightGraph.noOut;
 
-        return cardStat{0, 0, 0};
+        int noOut =  (int)(ratio_left_right * leftGraph.noOut);
+        int noIn = (int)(ratio_left_right * rightGraph.noIn);
+        int noPaths = leftGraph.noPaths * ratio_left_right * paths_per;
+
+        return cardStat{noOut, noPaths, noIn};
     }
 
     return cardStat {0, 0, 0};
