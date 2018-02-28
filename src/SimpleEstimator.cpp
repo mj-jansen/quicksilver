@@ -11,6 +11,11 @@ SimpleEstimator::SimpleEstimator(std::shared_ptr<SimpleGraph> &g){
 
     // works only with SimpleGraph
     graph = g;
+    num_of_edges = new int[graph->getNoLabels()] {};
+    missing_out_vertices = new int[graph->getNoLabels()] {};
+
+    num_of_edges2 = new int[graph->getNoLabels()] {};
+    missing_in_vertices = new int[graph->getNoLabels()] {};
 }
 
 void SimpleEstimator::prepare() {
@@ -19,9 +24,7 @@ void SimpleEstimator::prepare() {
     int noLabels = graph->getNoLabels();
     int noVertices = graph->getNoVertices();
 
-    int num_of_edges [noLabels] = {};
     int edges_previous [noLabels] = {};
-    int missing_out_vertices [noLabels] = {};
 
     int sum = 0;
     for(int i = 0; i < noVertices; i++) {
@@ -37,9 +40,8 @@ void SimpleEstimator::prepare() {
                 edges_previous[j] = num_of_edges[j];
         }
     }
-    int num_of_edges2 [noLabels] = {};
+
     int edges_previous2 [noLabels] = {};
-    int missing_in_vertices [noLabels] = {};
 
     int sum2 = 0;
     for(int i = 0; i < noVertices; i++) {
@@ -58,21 +60,17 @@ void SimpleEstimator::prepare() {
 
     std::cout << "Sum: " << sum << '\n' << std::endl;
     for(int j = 0; j < noLabels; j++) {
-        cout << j << "th label: " << num_of_edges2[j] << '\n';
-        cout << j << "th vertices: " << noVertices - missing_in_vertices[j] << '\n';
-        cout << j << "th average per vertice: " << (double)num_of_edges2[j]/(noVertices - missing_in_vertices[j]) << '\n';
+        cout << j << "th label: " << num_of_edges[j] << '\n';
+        cout << j << "th vertices: " << noVertices - missing_out_vertices[j] << '\n';
+        cout << j << "th average per vertice: " << (double)num_of_edges[j]/(noVertices - missing_out_vertices[j]) << '\n';
     }
 }
 
 cardStat SimpleEstimator::estimate(RPQTree *q) {
 
     // perform your estimation here
-    //int noOut;
-    //int noPaths;
-    //int noIn;
 
     // evaluate according to the AST bottom-up
-
 
     if(q->isLeaf()) {
         // project out the label in the AST
@@ -86,31 +84,37 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
 
         if(std::regex_search(q->data, matches, directLabel)) {
             label = (uint32_t) std::stoul(matches[1]);
-            cout << "label: " << label << '\n';
             inverse = false;
+            return cardStat{graph->getNoVertices() - missing_out_vertices[label], num_of_edges[label], graph->getNoVertices() - missing_in_vertices[label]};
         } else if(std::regex_search(q->data, matches, inverseLabel)) {
             label = (uint32_t) std::stoul(matches[1]);
             inverse = true;
+            return cardStat{graph -> getNoVertices() - missing_in_vertices[label], num_of_edges[label], graph->getNoVertices() - missing_out_vertices[label]};
         } else {
             std::cerr << "Label parsing failed!" << std::endl;
             return cardStat{0, 0, 0};
-            //return nullptr;
         }
-        return cardStat{0, 0, 0};
     }
 
     if(q->isConcat()) {
 
         // evaluate the children
-        cout << "left\n";
         auto leftGraph = SimpleEstimator::estimate(q->left);
-        cout << "right\n";
         auto rightGraph = SimpleEstimator::estimate(q->right);
-        cout << "concat\n";
-        return cardStat{0, 0, 0};
 
         // join left with right
+        cout << "ratio: " << (double)rightGraph.noOut/graph->getNoVertices() << "\n";
+        //cout << "noOut: " << leftGraph
+
+        return cardStat{0, 0, 0};
     }
 
     return cardStat {0, 0, 0};
+}
+
+SimpleEstimator::~SimpleEstimator() {
+    delete[] num_of_edges;
+    delete[] num_of_edges2;
+    delete[] missing_in_vertices;
+    delete[] missing_out_vertices;
 }
