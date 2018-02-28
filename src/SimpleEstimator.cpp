@@ -9,6 +9,7 @@
 double pZero(double n, double z, int l);
 double pDubl(double n, double z, int l);
 int factorial(int n);
+int walkQuery(RPQTree *q, std::string tabs);
 
 int highestOutDegree = 0;
 int noOutEdges = 0;
@@ -67,7 +68,7 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
     uint32_t t = 0;
     uint32_t t1 = (uint32_t) atoi(tRaw.substr(0,1).data());
     if(tRaw[1] == '+'){
-        for(auto edges: this->graph->adj){
+        for(auto edges: this->graph->reverse_adj){
             for(std::pair<uint32_t,uint32_t> edge: edges){
                 if(edge.first == t1){
                     ++t;
@@ -92,12 +93,32 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
     //estimating the stuff
     //cardpaths
     double sum = 0;
-    double mn = m/n;
+    double avgEdges = m/n;
     for(int i = 1; i <= l; i++){
-        sum += (l+1)*pow(mn + (x-mn)/16.,i)*(1.-pZero(n,z,l))*(1.-pDubl(n,x,l));
+        sum += ((l+1)*pow(avgEdges + (x-avgEdges)/16.,i)*(1.-pZero(n,z,l))*(1.-pDubl(n,x,l)));
+        //sum += (avgEdges*(1.-pZero(n,z,l)));
     }
     sum = sum*s*t;
-    return cardStat {t, static_cast<uint32_t>(sum), s};
+    std::cout<<"\n";
+    //int paths = walkQuery(q, "");
+    uint32_t paths = static_cast<uint32_t>(sum);
+    //return cardStat {t, static_cast<uint32_t>(sum), s};
+    return cardStat {t, paths, s};
+}
+
+int walkQuery(RPQTree *q, std::string tabs){
+    int sum = 0;
+    if(q->isLeaf()){
+        std::cout << tabs << q->data << "dingen doen\n";
+        //avg edges * p(#edges van de node > 0)
+
+    }
+    else{
+        walkQuery(q->left, tabs + "\t");
+        std::cout << tabs << q->data + "\n";
+        walkQuery(q->right, tabs + "\t");
+    }
+    return sum;
 }
 
 double pZero(double n, double z, int l){
