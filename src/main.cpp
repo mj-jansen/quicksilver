@@ -26,10 +26,10 @@ std::vector<query> parseQueries(std::string &fileName) {
     std::regex edgePat (R"((.+),(.+),(.+))");
 
     while(std::getline(graphFile, line)) {
-        std::smatch matches;
+        std::match_results<const char *, std::allocator<std::sub_match<std::basic_string<char, std::char_traits<char>, std::allocator<char>>::const_iterator>>> matches;
 
         // match edge data
-        if(std::regex_search(line, matches, edgePat)) {
+        if(std::regex_search(line.c_str(), matches, edgePat)) {
             auto s = matches[1];
             auto path = matches[2];
             auto t = matches[3];
@@ -47,7 +47,7 @@ std::vector<query> parseQueries(std::string &fileName) {
 
 
 int main(int argc, char *argv[]) {
-
+    printf(argv[0] + '\n');
     if(argc < 3) {
         std::cout << "Usage: quicksilver <graphFile> <queriesFile>" << std::endl;
         return 0;
