@@ -11,6 +11,11 @@
 class SimpleEstimator : public Estimator {
 
     std::shared_ptr<SimpleGraph> graph;
+    //int num_of_edges[];
+    //int missing_out_vertices[];
+
+  //  int num_of_edges2[];
+//    int missing_in_vertices[];
 
 public:
     explicit SimpleEstimator(std::shared_ptr<SimpleGraph> &g);
